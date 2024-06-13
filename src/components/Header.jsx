@@ -6,7 +6,7 @@ import { BsArrowsFullscreen } from "react-icons/bs";
 
 const Header = () => {
   return (
-    <header className="text-gray-600 body-font border-b-2 w-full">
+    <header className="text-gray-600 body-font border-b-2 w-full z-[1000]">
       <div className=" mx-auto flex flex-wrap py-4 px-1 flex-col md:flex-row justify-between items-center">
         <div className="flex pl-2 w-auto">
           <div className="flex px-4">

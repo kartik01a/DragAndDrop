@@ -4,11 +4,11 @@ import { FaReact } from "react-icons/fa";
 
 const DragImage = () => {
   const [isDragging, setIsDragging] = useState(false);
-  const [position, setPosition] = useState({ x: 50, y: 50 });
+  const [position, setPosition] = useState({ x: 300, y: 100 });
   const [image, setImage] = useState(null);
 
   useEffect(() => {
-    const iconSize = 50; // Size of the icon
+    const iconSize = 100; // Size of the icon
     const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${iconSize}" height="${iconSize}" viewBox="0 0 1024 1024">${
       FaReact().props.children
     }</svg>`;
@@ -25,7 +25,11 @@ const DragImage = () => {
   }, []);
 
   return (
-    <Stage width={window.innerWidth} height={window.innerHeight}>
+    <Stage
+      style={{ zIndex: "1000!important", position: "relative" }}
+      width={window.innerWidth}
+      height={window.innerHeight}
+    >
       <Layer>
         {image && (
           <KonvaImage

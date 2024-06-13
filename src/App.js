@@ -1,13 +1,19 @@
-import logo from "./logo.svg";
 import "./App.css";
+import DragImage from "./components/DragImage";
 import Header from "./components/Header";
+import Right from "./components/Right";
+import Sidebar from "./components/Sidebar";
 
-function App() {
+const App = () => {
   return (
-    <div>
+    <>
       <Header />
-    </div>
+
+      <Sidebar />
+      <DragImage />
+      <Right />
+    </>
   );
-}
+};
 
 export default App;
