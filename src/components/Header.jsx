@@ -27,33 +27,33 @@ const Header = () => {
           <div className="flex px-4 w-[21rem] ml-auto justify-around">
             <div className="flex flex-col items-center px-2">
               <CiZoomIn className="text-2xl " />
-              <span className="flex flex-col items-center px-2 text-sm">
+              <span className="flex flex-col items-center px-2 text-sm max-w-max">
                 Zoom In
               </span>
             </div>
             <div className="flex flex-col items-center px-2">
               <BsArrowsFullscreen className="text-2xl " />
-              <span className="flex flex-col items-center px-2 text-sm">
+              <span className="flex flex-col items-center px-2 text-sm  max-w-max">
                 Center
               </span>
             </div>
             <div className="flex flex-col items-center px-2">
               <CiZoomOut className="text-2xl " />
-              <span className="flex flex-col items-center px-2 text-sm">
+              <span className="flex flex-col items-center  text-sm  max-w-max">
                 Zoom Out
               </span>
             </div>
             <div className="flex flex-col items-center px-2">
               <PiCube className="text-2xl " />
-              <span className="flex flex-col items-center px-2 text-sm">
+              <span className="flex flex-col items-center px-2 text-sm  max-w-max">
                 3D
               </span>
             </div>
           </div>
-          <button className="rounded border border-slate-400 hover:bg-gray-200 px-2 text-black mx-4">
+          <button className="rounded border border-slate-400 hover:bg-gray-200 px-2 text-black mx-4  max-w-max">
             Parts Breakdown
           </button>
-          <button className="rounded border bg-sky-600 hover:bg-sky-300 px-2 text-white mx-4">
+          <button className="rounded border bg-sky-600 hover:bg-sky-300 px-2 text-white mx-4  max-w-max">
             Request Quotes
           </button>
         </div>
