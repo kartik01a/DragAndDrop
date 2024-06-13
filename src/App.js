@@ -1,19 +1,19 @@
-import logo from './logo.svg';
 import './App.css';
-import LeftBar from './components/LeftBar';
-import RightBar from './components/RightBar';
-import PlayGround from './components/PlayGround';
+import Header from './components/Header';
+import Right from './components/Right';
+import Sidebar from './components/Sidebar';
 
-function App() {
+
+  const  App=()=> {
   return (
     <>
-      <div className="flex h-[100vh] w-[100vh] bg-red-500">
-        <LeftBar />
+      <Header />
 
-   
-      </div>
+      <Sidebar />
+      
+      <Right />
     </>
   );
 }
 
-export default App;
+export default App
