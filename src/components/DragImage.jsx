@@ -1,57 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Stage, Layer, Image as KonvaImage } from "react-konva";
-import { FaReact } from "react-icons/fa";
+import React from "react";
+import CanvasComponent from "./Canvas";
 
-const DragImage = () => {
-  const [isDragging, setIsDragging] = useState(false);
-  const [position, setPosition] = useState({ x: 300, y: 100 });
-  const [image, setImage] = useState(null);
-
-  useEffect(() => {
-    const iconSize = 100; // Size of the icon
-    const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${iconSize}" height="${iconSize}" viewBox="0 0 1024 1024">${
-      FaReact().props.children
-    }</svg>`;
-    const svgBlob = new Blob([svgString], {
-      type: "image/svg+xml;charset=utf-8",
-    });
-    const url = URL.createObjectURL(svgBlob);
-    const img = new Image();
-    img.onload = () => {
-      setImage(img);
-      URL.revokeObjectURL(url);
-    };
-    img.src = url;
-  }, []);
-
+const DragImage = ({ shapes, setShapes }) => {
   return (
-    <Stage
-      style={{ zIndex: "1000!important", position: "relative" }}
-      width={window.innerWidth}
-      height={window.innerHeight}
-    >
-      <Layer>
-        {image && (
-          <KonvaImage
-            image={image}
-            x={position.x}
-            y={position.y}
-            draggable
-            onDragStart={() => {
-              setIsDragging(true);
-            }}
-            onDragEnd={(e) => {
-              setIsDragging(false);
-              setPosition({
-                x: e.target.x(),
-                y: e.target.y(),
-              });
-            }}
-            stroke={isDragging ? "green" : "black"}
-          />
-        )}
-      </Layer>
-    </Stage>
+    <div className="ml-[250px]">
+      <CanvasComponent shapes={shapes} setShapes={setShapes} />
+    </div>
   );
 };
 

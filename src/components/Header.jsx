@@ -4,22 +4,22 @@ import { PiCube } from "react-icons/pi";
 import { CiZoomIn, CiZoomOut } from "react-icons/ci";
 import { BsArrowsFullscreen } from "react-icons/bs";
 
-const Header = () => {
+const Header = ({ setShapes, undo, redo }) => {
   return (
     <header className="text-gray-600 body-font border-b-2 w-full z-[1000]">
       <div className=" mx-auto flex flex-wrap py-4 px-1 flex-col md:flex-row justify-between items-center">
         <div className="flex pl-2 w-auto">
           <div className="flex px-4">
             <div className="flex flex-col items-center px-2">
-              <TbArrowBackUp className="text-2xl " />
+              <TbArrowBackUp className="text-2xl" onClick={undo} />
               <span className="flex flex-col items-center px-2">Undo</span>
             </div>
-            <div>
-              <TbArrowForwardUp className="text-2xl " />
+            <div className="flex flex-col items-center px-2">
+              <TbArrowForwardUp className="text-2xl" onClick={redo} />
               <span>Redo</span>
             </div>
           </div>
-          <button className="rounded border border-slate-400 hover:bg-gray-200 px-2">
+          <button onClick={() => setShapes([])} className="rounded border border-slate-400 hover:bg-gray-200 px-2">
             Start Over
           </button>
         </div>
