@@ -77,18 +77,24 @@ const CanvasComponent = ({ shapes, setShapes }) => {
       });
     });
   };
-
   const isClose = (shape1, shape2) => {
     const distance = 1; // Adjust this value as needed
+  
     const closeX =
-      Math.abs(shape1.x - (shape2.x + 100)) <= distance ||
-      Math.abs(shape2.x - (shape1.x + 100)) <= distance;
+      (shape1.y === shape2.y) && (
+        Math.abs(shape1.x - (shape2.x + 100)) <= distance ||
+        Math.abs(shape2.x - (shape1.x + 100)) <= distance
+      );
+  
     const closeY =
-      Math.abs(shape1.y - (shape2.y + 150)) <= distance ||
-      Math.abs(shape2.y - (shape1.y + 150)) <= distance;
+      (shape1.x === shape2.x) && (
+        Math.abs(shape1.y - (shape2.y + 150)) <= distance ||
+        Math.abs(shape2.y - (shape1.y + 150)) <= distance
+      );
+  
     return { closeX, closeY };
   };
-
+  
   const drawConnector = (ctx, shape1, shape2, closeX, closeY) => {
     const x1 = shape1.x + 50;
     const y1 = shape1.y + 75;
@@ -144,53 +150,52 @@ const CanvasComponent = ({ shapes, setShapes }) => {
     }
   };
 
-  const handleMouseMove = (e) => {
-    if (!draggingShape) return;
+ const handleMouseMove = (e) => {
+  if (!draggingShape) return;
 
-    const canvas = canvasRef.current;
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+  const canvas = canvasRef.current;
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
 
-    setShapes((prevShapes) => {
-      return prevShapes.map((shape) => {
-        if (shape.id === draggingShape.id) {
-          const newX = mouseX - draggingShape.offsetX;
-          const newY = mouseY - draggingShape.offsetY;
+  setShapes((prevShapes) => {
+    return prevShapes.map((shape) => {
+      if (shape.id === draggingShape.id) {
+        const newX = mouseX - draggingShape.offsetX;
+        const newY = mouseY - draggingShape.offsetY;
 
-          // Check for snapping
-          let snapX = newX;
-          let snapY = newY;
+        // Check for snapping
+        let snapX = newX;
+        let snapY = newY;
 
-          prevShapes.forEach((otherShape) => {
-            if (otherShape.id !== shape.id) {
-              const closeX =
-                Math.abs(newX - (otherShape.x + 100)) <= 20 ||
-                Math.abs(otherShape.x - (newX + 100)) <= 20;
-              const closeY =
-                Math.abs(newY - (otherShape.y + 150)) <= 20 ||
-                Math.abs(otherShape.y - (newY + 150)) <= 20;
+        prevShapes.forEach((otherShape) => {
+          if (otherShape.id !== shape.id) {
+            const horizontalSnap =
+              Math.abs(newX - otherShape.x) <= 20 || Math.abs(newX + 100 - otherShape.x) <= 20 || Math.abs(newX - otherShape.x - 100) <= 20;
+            const verticalSnap =
+              Math.abs(newY - otherShape.y) <= 20 || Math.abs(newY + 150 - otherShape.y) <= 20 || Math.abs(newY - otherShape.y - 150) <= 20;
 
-              if (closeX) {
-                snapX = newX < otherShape.x ? otherShape.x - 100 : otherShape.x + 100;
-              }
-
-              if (closeY) {
-                snapY = newY < otherShape.y ? otherShape.y - 150 : otherShape.y + 150;
-              }
+            if (horizontalSnap && Math.abs(newY - otherShape.y) < 150) {
+              snapX = newX < otherShape.x ? otherShape.x - 100 : otherShape.x + 100;
+              snapY = otherShape.y; // Align vertically
+            } else if (verticalSnap && Math.abs(newX - otherShape.x) < 100) {
+              snapY = newY < otherShape.y ? otherShape.y - 150 : otherShape.y + 150;
+              snapX = otherShape.x; // Align horizontally
             }
-          });
+          }
+        });
 
-          return {
-            ...shape,
-            x: snapX,
-            y: snapY,
-          };
-        }
-        return shape;
-      });
+        return {
+          ...shape,
+          x: snapX,
+          y: snapY,
+        };
+      }
+      return shape;
     });
-  };
+  });
+};
+
 
   const handleMouseUp = () => {
     setDraggingShape(null);
