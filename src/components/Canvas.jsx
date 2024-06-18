@@ -16,26 +16,30 @@ const CanvasComponent = ({ shapes, setShapes }) => {
       return new Promise((resolve, reject) => {
         const img = new Image();
         img.src = src;
+        img.width = width;   // set the desired width
+        img.height = height; // set the desired height
         img.onload = () => resolve(img);
         img.onerror = (err) => reject(err);
       });
     };
-
+    
+    // In your useEffect for loading images:
     Promise.all([
       loadImage("/assets/connector.svg"),
       loadImage("/assets/img1.svg", 100, 150),
-      loadImage("/assets/img2.svg", 50, 50),
+      loadImage("/assets/img2.svg", 50, 50), // Load img2 with 50x50 size
       loadImage("/assets/BG.svg"),
     ])
-      .then(([connector, img1, img2, bg]) => {
-        setImages({
-          connector,
-          img1,
-          img2,
-          bg,
-        });
-      })
-      .catch((error) => console.error("Error loading images:", error));
+    .then(([connector, img1, img2, bg]) => {
+      setImages({
+        connector,
+        img1,
+        img2,
+        bg,
+      });
+    })
+    .catch((error) => console.error("Error loading images:", error));
+    
   }, []);
 
   const drawShapes = (ctx) => {
@@ -49,28 +53,25 @@ const CanvasComponent = ({ shapes, setShapes }) => {
 
     shapes.forEach((shape) => {
       if (shape.type === "img1" && images.img1) {
-        drawImage(ctx, images.img1, shape, 100, 150);
+        drawImage(ctx, images.img1, shape);
       } else if (shape.type === "img2" && images.img2) {
-        drawImage(ctx, images.img2, shape, 50, 50);
+        drawImage(ctx, images.img2, shape);
       }
-      drawMeasurements(ctx, shape);
+      drawMeasurements(ctx, shape, 100, 150);
     });
   };
 
-  const drawImage = (ctx, image, shape, width, height) => {
-    ctx.drawImage(image, shape.x, shape.y, width, height);
+  const drawImage = (ctx, image, shape) => {
+    if (shape.type === "img1") {
+      ctx.drawImage(image, shape.x, shape.y, 100, 150);
+    
+    } else if (shape.type === "img2") {
+      ctx.drawImage(image, shape.x, shape.y, 100, 150);
+    
+    }
   };
 
-  const drawMeasurements = (ctx, shape) => {
-    let width, height;
-    if (shape.type === "img1") {
-      width = 100;
-      height = 150;
-    } else if (shape.type === "img2") {
-      width = 50;
-      height = 50;
-    }
-
+  const drawMeasurements = (ctx, shape, width, height) => {
     ctx.font = "12px Arial";
     ctx.fillStyle = "black";
     ctx.fillText(`(${width}x${height})`, shape.x, shape.y - 5);
@@ -94,22 +95,23 @@ const CanvasComponent = ({ shapes, setShapes }) => {
 
     const closeX =
       shape1.y === shape2.y &&
-      (Math.abs(shape1.x - (shape2.x + (shape2.type === "img1" ? 100 : 50))) <= distance ||
-        Math.abs(shape2.x - (shape1.x + (shape1.type === "img1" ? 100 : 50))) <= distance);
+      (Math.abs(shape1.x - (shape2.x + 100)) <= distance ||
+        Math.abs(shape2.x - (shape1.x + 100)) <= distance);
 
     const closeY =
       shape1.x === shape2.x &&
-      (Math.abs(shape1.y - (shape2.y + (shape2.type === "img1" ? 150 : 50))) <= distance ||
-        Math.abs(shape2.y - (shape1.y + (shape1.type === "img1" ? 150 : 50))) <= distance);
+      (Math.abs(shape1.y - (shape2.y + 150)) <= distance ||
+        Math.abs(shape2.y - (shape1.y + 150)) <= distance);
 
     return { closeX, closeY };
   };
 
   const drawConnector = (ctx, shape1, shape2, closeX, closeY) => {
-    const x1 = shape1.x + (shape1.type === "img1" ? 50 : 25);
-    const y1 = shape1.y + (shape1.type === "img1" ? 75 : 25);
-    const x2 = shape2.x + (shape2.type === "img1" ? 50 : 25);
-    const y2 = shape2.y + (shape2.type === "img1" ? 75 : 25);
+    console.log(shape1.type, shape2.type)
+    const x1 = shape1.x + 50;
+    const y1 = shape1.y + 75;
+    const x2 = shape2.x + 50;
+    const y2 = shape2.y + 75;
 
     ctx.beginPath();
     ctx.moveTo(x1, y1);
@@ -120,9 +122,11 @@ const CanvasComponent = ({ shapes, setShapes }) => {
     const imgX = (x1 + x2) / 2 - 10;
     const imgY = (y1 + y2) / 2 - 10;
 
+
     if (images.connector && shape1.type === "img1") {
       if (closeX) {
         // Draw 5 images horizontally
+        
         ctx.drawImage(images.connector, imgX, imgY - 58, 20, 20);
         ctx.drawImage(images.connector, imgX, imgY - 28, 20, 20);
         ctx.drawImage(images.connector, imgX, imgY, 20, 20);
@@ -137,25 +141,25 @@ const CanvasComponent = ({ shapes, setShapes }) => {
     } else if (images.connector && shape1.type === "img2") {
       if (closeX) {
         // Draw 5 orange circles horizontally
-        ctx.fillStyle = "#E04B00";
+        ctx.fillStyle = '#E04B00';
         ctx.beginPath();
-        ctx.arc(imgX + 10, imgY - 15, 9, 0, 2 * Math.PI); // Draw circle at the top
+        ctx.arc(imgX + 10, imgY - 58, 28, 0, 4 * Math.PI); // Draw circle at the top
         ctx.fill();
-
+    
         ctx.beginPath();
-        ctx.arc(imgX + 10, imgY + 35, 9, 0, 2 * Math.PI); // Draw circle at the bottom
+        ctx.arc(imgX + 10, imgY + 80, 28, 0, 4 * Math.PI); // Draw circle at the bottom
         ctx.fill();
-      } else if (closeY) {
+    } else if (closeY) {
         // Draw 3 orange circles vertically
-        ctx.fillStyle = "#E04B00";
+        ctx.fillStyle = '#E04B00';
         ctx.beginPath();
-        ctx.arc(imgX - 15, imgY + 10, 9, 0, 2 * Math.PI); // Draw circle on the left
+        ctx.arc(imgX - 40, imgY + 10, 28, 0, 4 * Math.PI); // Draw circle on the left
         ctx.fill();
-
+    
         ctx.beginPath();
-        ctx.arc(imgX + 35, imgY + 10, 9, 0, 2 * Math.PI); // Draw circle on the right
+        ctx.arc(imgX + 55, imgY + 10, 28, 0, 4 * Math.PI); // Draw circle on the right
         ctx.fill();
-      }
+    }
     }
   };
 
@@ -165,11 +169,13 @@ const CanvasComponent = ({ shapes, setShapes }) => {
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
 
-    const shape = shapes.find((shape) => {
-      const width = shape.type === "img1" ? 100 : 50;
-      const height = shape.type === "img1" ? 150 : 50;
-      return mouseX >= shape.x && mouseX <= shape.x + width && mouseY >= shape.y && mouseY <= shape.y + height;
-    });
+    const shape = shapes.find(
+      (shape) =>
+        mouseX >= shape.x &&
+        mouseX <= shape.x + 100 &&
+        mouseY >= shape.y &&
+        mouseY <= shape.y + 150
+    );
 
     if (shape) {
       setDraggingShape({
@@ -200,23 +206,20 @@ const CanvasComponent = ({ shapes, setShapes }) => {
 
           prevShapes.forEach((otherShape) => {
             if (otherShape.id !== shape.id && otherShape.type === shape.type) {
-              const width = shape.type === "img1" ? 100 : 50;
-              const height = shape.type === "img1" ? 150 : 50;
-
               const horizontalSnap =
                 Math.abs(newX - otherShape.x) <= 20 ||
-                Math.abs(newX + width - otherShape.x) <= 20 ||
-                Math.abs(newX - otherShape.x - width) <= 20;
+                Math.abs(newX + 100 - otherShape.x) <= 20 ||
+                Math.abs(newX - otherShape.x - 100) <= 20;
               const verticalSnap =
                 Math.abs(newY - otherShape.y) <= 20 ||
-                Math.abs(newY + height - otherShape.y) <= 20 ||
-                Math.abs(newY - otherShape.y - height) <= 20;
+                Math.abs(newY + 150 - otherShape.y) <= 20 ||
+                Math.abs(newY - otherShape.y - 150) <= 20;
 
-              if (horizontalSnap && Math.abs(newY - otherShape.y) < height / 2) {
-                snapX = newX < otherShape.x ? otherShape.x - width : otherShape.x + width;
+              if (horizontalSnap && Math.abs(newY - otherShape.y) < 75) {
+                snapX = newX < otherShape.x ? otherShape.x - 100 : otherShape.x + 100;
                 snapY = otherShape.y; // Align vertically
-              } else if (verticalSnap && Math.abs(newX - otherShape.x) < width / 2) {
-                snapY = newY < otherShape.y ? otherShape.y - height : otherShape.y + height;
+              } else if (verticalSnap && Math.abs(newX - otherShape.x) < 50) {
+                snapY = newY < otherShape.y ? otherShape.y - 150 : otherShape.y + 150;
                 snapX = otherShape.x; // Align horizontally
               }
             }
