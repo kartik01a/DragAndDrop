@@ -12,30 +12,34 @@ const CanvasComponent = ({ shapes, setShapes }) => {
   }, [shapes, images]);
 
   useEffect(() => {
-    const loadImage = (src) => {
+    const loadImage = (src, width, height) => {
       return new Promise((resolve, reject) => {
         const img = new Image();
         img.src = src;
+        img.width = width;   // set the desired width
+        img.height = height; // set the desired height
         img.onload = () => resolve(img);
         img.onerror = (err) => reject(err);
       });
     };
-
+    
+    // In your useEffect for loading images:
     Promise.all([
       loadImage("/assets/connector.svg"),
-      loadImage("/assets/img1.svg"),
-      loadImage("/assets/img2.svg"),
+      loadImage("/assets/img1.svg", 100, 150),
+      loadImage("/assets/img2.svg", 50, 50), // Load img2 with 50x50 size
       loadImage("/assets/BG.svg"),
     ])
-      .then(([connector, img1, img2, bg]) => {
-        setImages({
-          connector,
-          img1,
-          img2,
-          bg,
-        });
-      })
-      .catch((error) => console.error("Error loading images:", error));
+    .then(([connector, img1, img2, bg]) => {
+      setImages({
+        connector,
+        img1,
+        img2,
+        bg,
+      });
+    })
+    .catch((error) => console.error("Error loading images:", error));
+    
   }, []);
 
   const drawShapes = (ctx) => {
@@ -58,7 +62,13 @@ const CanvasComponent = ({ shapes, setShapes }) => {
   };
 
   const drawImage = (ctx, image, shape) => {
-    ctx.drawImage(image, shape.x, shape.y, 100, 150);
+    if (shape.type === "img1") {
+      ctx.drawImage(image, shape.x, shape.y, 100, 150);
+    
+    } else if (shape.type === "img2") {
+      ctx.drawImage(image, shape.x, shape.y, 100, 150);
+    
+    }
   };
 
   const drawMeasurements = (ctx, shape, width, height) => {
@@ -112,9 +122,11 @@ const CanvasComponent = ({ shapes, setShapes }) => {
     const imgX = (x1 + x2) / 2 - 10;
     const imgY = (y1 + y2) / 2 - 10;
 
-    if (images.connector) {
+
+    if (images.connector && shape1.type === "img1") {
       if (closeX) {
         // Draw 5 images horizontally
+        
         ctx.drawImage(images.connector, imgX, imgY - 58, 20, 20);
         ctx.drawImage(images.connector, imgX, imgY - 28, 20, 20);
         ctx.drawImage(images.connector, imgX, imgY, 20, 20);
@@ -126,6 +138,28 @@ const CanvasComponent = ({ shapes, setShapes }) => {
         ctx.drawImage(images.connector, imgX, imgY, 20, 20);
         ctx.drawImage(images.connector, imgX + 28, imgY, 20, 20);
       }
+    } else if (images.connector && shape1.type === "img2") {
+      if (closeX) {
+        // Draw 5 orange circles horizontally
+        ctx.fillStyle = '#E04B00';
+        ctx.beginPath();
+        ctx.arc(imgX + 10, imgY - 58, 28, 0, 4 * Math.PI); // Draw circle at the top
+        ctx.fill();
+    
+        ctx.beginPath();
+        ctx.arc(imgX + 10, imgY + 80, 28, 0, 4 * Math.PI); // Draw circle at the bottom
+        ctx.fill();
+    } else if (closeY) {
+        // Draw 3 orange circles vertically
+        ctx.fillStyle = '#E04B00';
+        ctx.beginPath();
+        ctx.arc(imgX - 40, imgY + 10, 28, 0, 4 * Math.PI); // Draw circle on the left
+        ctx.fill();
+    
+        ctx.beginPath();
+        ctx.arc(imgX + 55, imgY + 10, 28, 0, 4 * Math.PI); // Draw circle on the right
+        ctx.fill();
+    }
     }
   };
 
