@@ -25,14 +25,14 @@ const CanvasComponent = ({ shapes, setShapes }) => {
       loadImage("/assets/connector.svg"),
       loadImage("/assets/img1.svg"),
       loadImage("/assets/img2.svg"),
-      loadImage("/assets/BG.svg"), 
+      loadImage("/assets/BG.svg"),
     ])
       .then(([connector, img1, img2, bg]) => {
         setImages({
           connector,
           img1,
           img2,
-          bg, // Set background image
+          bg,
         });
       })
       .catch((error) => console.error("Error loading images:", error));
@@ -45,22 +45,20 @@ const CanvasComponent = ({ shapes, setShapes }) => {
       ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
     }
 
-    shapes.forEach((shape) => {
-      const defaultWidth = 150;
-      const defaultHeight = 150;
-      const width = defaultWidth;
-      const height =defaultHeight;
-
-      if (shape.type === "img1" && images.img1) {
-        ctx.drawImage(images.img1, shape.x, shape.y, width, height);
-        drawMeasurements(ctx, shape, width, height);
-      } else if (shape.type === "img2" && images.img2) {
-        ctx.drawImage(images.img2, shape.x, shape.y, width, height);
-        drawMeasurements(ctx, shape, width, height);
-      }
-    });
-
     drawConnectors(ctx);
+
+    shapes.forEach((shape) => {
+      if (shape.type === "img1" && images.img1) {
+        drawImage(ctx, images.img1, shape);
+      } else if (shape.type === "img2" && images.img2) {
+        drawImage(ctx, images.img2, shape);
+      }
+      drawMeasurements(ctx, shape, 100, 150);
+    });
+  };
+
+  const drawImage = (ctx, image, shape) => {
+    ctx.drawImage(image, shape.x, shape.y, 100, 150);
   };
 
   const drawMeasurements = (ctx, shape, width, height) => {
@@ -72,39 +70,54 @@ const CanvasComponent = ({ shapes, setShapes }) => {
   const drawConnectors = (ctx) => {
     shapes.forEach((shape, index) => {
       shapes.slice(index + 1).forEach((otherShape) => {
-        if (isClose(shape, otherShape)) {
-          drawConnector(ctx, shape, otherShape);
+        const { closeX, closeY } = isClose(shape, otherShape);
+        if (closeX || closeY) {
+          drawConnector(ctx, shape, otherShape, closeX, closeY);
         }
       });
     });
   };
 
   const isClose = (shape1, shape2) => {
-    const distance = 20; // Adjust this value as needed
+    const distance = 1; // Adjust this value as needed
     const closeX =
-      Math.abs(shape1.x - (shape2.x + shape2.width)) <= distance ||
-      Math.abs(shape2.x - (shape1.x + shape1.width)) <= distance;
+      Math.abs(shape1.x - (shape2.x + 100)) <= distance ||
+      Math.abs(shape2.x - (shape1.x + 100)) <= distance;
     const closeY =
-      Math.abs(shape1.y - (shape2.y + shape2.height)) <= distance ||
-      Math.abs(shape2.y - (shape1.y + shape1.height)) <= distance;
-    return closeX && closeY;
+      Math.abs(shape1.y - (shape2.y + 150)) <= distance ||
+      Math.abs(shape2.y - (shape1.y + 150)) <= distance;
+    return { closeX, closeY };
   };
 
-  const drawConnector = (ctx, shape1, shape2) => {
-    const x1 = shape1.x + shape1.width / 2;
-    const y1 = shape1.y + shape1.height / 2;
-    const x2 = shape2.x + shape2.width / 2;
-    const y2 = shape2.y + shape2.height / 2;
+  const drawConnector = (ctx, shape1, shape2, closeX, closeY) => {
+    const x1 = shape1.x + 50;
+    const y1 = shape1.y + 75;
+    const x2 = shape2.x + 50;
+    const y2 = shape2.y + 75;
 
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
     ctx.strokeStyle = "black";
     ctx.stroke();
+
     const imgX = (x1 + x2) / 2 - 10;
     const imgY = (y1 + y2) / 2 - 10;
+
     if (images.connector) {
-      ctx.drawImage(images.connector, imgX, imgY, 20, 20);
+      if (closeX) {
+        // Draw 5 images horizontally
+        ctx.drawImage(images.connector, imgX, imgY - 58, 20, 20);
+        ctx.drawImage(images.connector, imgX, imgY - 28, 20, 20);
+        ctx.drawImage(images.connector, imgX, imgY, 20, 20);
+        ctx.drawImage(images.connector, imgX, imgY + 28, 20, 20);
+        ctx.drawImage(images.connector, imgX, imgY + 58, 20, 20);
+      } else if (closeY) {
+        // Draw 3 images vertically
+        ctx.drawImage(images.connector, imgX - 28, imgY, 20, 20);
+        ctx.drawImage(images.connector, imgX, imgY, 20, 20);
+        ctx.drawImage(images.connector, imgX + 28, imgY, 20, 20);
+      }
     }
   };
 
@@ -117,9 +130,9 @@ const CanvasComponent = ({ shapes, setShapes }) => {
     const shape = shapes.find(
       (shape) =>
         mouseX >= shape.x &&
-        mouseX <= shape.x + shape.width &&
+        mouseX <= shape.x + 100 &&
         mouseY >= shape.y &&
-        mouseY <= shape.y + shape.height
+        mouseY <= shape.y + 150
     );
 
     if (shape) {
@@ -139,17 +152,44 @@ const CanvasComponent = ({ shapes, setShapes }) => {
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
 
-    setShapes((prevShapes) =>
-      prevShapes.map((shape) =>
-        shape.id === draggingShape.id
-          ? {
-              ...shape,
-              x: mouseX - draggingShape.offsetX,
-              y: mouseY - draggingShape.offsetY,
+    setShapes((prevShapes) => {
+      return prevShapes.map((shape) => {
+        if (shape.id === draggingShape.id) {
+          const newX = mouseX - draggingShape.offsetX;
+          const newY = mouseY - draggingShape.offsetY;
+
+          // Check for snapping
+          let snapX = newX;
+          let snapY = newY;
+
+          prevShapes.forEach((otherShape) => {
+            if (otherShape.id !== shape.id) {
+              const closeX =
+                Math.abs(newX - (otherShape.x + 100)) <= 20 ||
+                Math.abs(otherShape.x - (newX + 100)) <= 20;
+              const closeY =
+                Math.abs(newY - (otherShape.y + 150)) <= 20 ||
+                Math.abs(otherShape.y - (newY + 150)) <= 20;
+
+              if (closeX) {
+                snapX = newX < otherShape.x ? otherShape.x - 100 : otherShape.x + 100;
+              }
+
+              if (closeY) {
+                snapY = newY < otherShape.y ? otherShape.y - 150 : otherShape.y + 150;
+              }
             }
-          : shape
-      )
-    );
+          });
+
+          return {
+            ...shape,
+            x: snapX,
+            y: snapY,
+          };
+        }
+        return shape;
+      });
+    });
   };
 
   const handleMouseUp = () => {
