@@ -28,12 +28,14 @@ const CanvasComponent = ({ shapes, setShapes }) => {
       loadImage("/assets/EasyPier_Connect.svg"),
       loadImage("/assets/EasyPier_New.svg", 100, 150),
       loadImage("/assets/SmartPier_New.svg", 50, 50),
+      loadImage("/assets/BG.svg"),
     ])
-      .then(([connector, img1, img2]) => {
+      .then(([connector, img1, img2, bg]) => {
         setImages({
           connector,
           img1,
           img2,
+          bg,
         });
       })
       .catch((error) => console.error("Error loading images:", error));

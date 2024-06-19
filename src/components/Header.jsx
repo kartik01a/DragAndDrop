@@ -9,12 +9,11 @@ const Header = ({ setShapes, undo, redo }) => {
   const { setZoomLevel } = useContext(DataContext);
 
   const handleZoomIn = () => {
-    setZoomLevel((prevZoomLevel) => Math.min(prevZoomLevel * 1.2, 5)); // Limit max zoom level to 5
-    console.log("gushdishd");
+    setZoomLevel((prevZoomLevel) => Math.min(prevZoomLevel * 1.2, 5));
   };
 
   const handleZoomOut = () => {
-    setZoomLevel((prevZoomLevel) => Math.max(prevZoomLevel / 1.2, 0.2)); // Limit min zoom level to 0.2
+    setZoomLevel((prevZoomLevel) => Math.max(prevZoomLevel / 1.2, 1));
   };
   return (
     <header className="text-gray-600 body-font border-b-2 w-full z-[1000]">
