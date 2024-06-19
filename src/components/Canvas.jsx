@@ -22,9 +22,9 @@ const CanvasComponent = ({ shapes, setShapes }) => {
     };
 
     Promise.all([
-      loadImage("/assets/connector.svg"),
-      loadImage("/assets/img1.svg", 100, 150),
-      loadImage("/assets/img2.svg", 50, 50),
+      loadImage("/assets/EasyPier_Connect.svg"),
+      loadImage("/assets/EasyPier_New.svg", 100, 150),
+      loadImage("/assets/SmartPier_New.svg", 50, 50),
       loadImage("/assets/BG.svg"),
     ])
       .then(([connector, img1, img2, bg]) => {
@@ -40,7 +40,13 @@ const CanvasComponent = ({ shapes, setShapes }) => {
 
   const drawShapes = (ctx) => {
     if (images.bg) {
-      ctx.drawImage(images.bg, 0, 0, canvasRef.current.width, canvasRef.current.height);
+      ctx.drawImage(
+        images.bg,
+        0,
+        0,
+        canvasRef.current.width,
+        canvasRef.current.height
+      );
     } else {
       ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
     }
@@ -94,13 +100,17 @@ const CanvasComponent = ({ shapes, setShapes }) => {
 
     const closeX =
       shape1.y === shape2.y &&
-      (Math.abs(shape1.x - (shape2.x + (shape2.type === "img1" ? 100 : 50))) <= distance ||
-        Math.abs(shape2.x - (shape1.x + (shape1.type === "img1" ? 100 : 50))) <= distance);
+      (Math.abs(shape1.x - (shape2.x + (shape2.type === "img1" ? 100 : 50))) <=
+        distance ||
+        Math.abs(shape2.x - (shape1.x + (shape1.type === "img1" ? 100 : 50))) <=
+          distance);
 
     const closeY =
       shape1.x === shape2.x &&
-      (Math.abs(shape1.y - (shape2.y + (shape2.type === "img1" ? 150 : 50))) <= distance ||
-        Math.abs(shape2.y - (shape1.y + (shape1.type === "img1" ? 150 : 50))) <= distance);
+      (Math.abs(shape1.y - (shape2.y + (shape2.type === "img1" ? 150 : 50))) <=
+        distance ||
+        Math.abs(shape2.y - (shape1.y + (shape1.type === "img1" ? 150 : 50))) <=
+          distance);
 
     return { closeX, closeY };
   };
@@ -137,7 +147,7 @@ const CanvasComponent = ({ shapes, setShapes }) => {
     } else if (images.connector && shape1.type === "img2") {
       if (closeX) {
         // Draw 5 orange circles horizontally
-        ctx.fillStyle = "#E04B00";
+        ctx.fillStyle = "#000";
         ctx.beginPath();
         ctx.arc(imgX + 10, imgY - 15, 9, 0, 2 * Math.PI); // Draw circle at the top
         ctx.fill();
@@ -147,7 +157,7 @@ const CanvasComponent = ({ shapes, setShapes }) => {
         ctx.fill();
       } else if (closeY) {
         // Draw 3 orange circles vertically
-        ctx.fillStyle = "#E04B00";
+        ctx.fillStyle = "#000";
         ctx.beginPath();
         ctx.arc(imgX - 15, imgY + 10, 9, 0, 2 * Math.PI); // Draw circle on the left
         ctx.fill();
@@ -168,7 +178,12 @@ const CanvasComponent = ({ shapes, setShapes }) => {
     const shape = shapes.find((shape) => {
       const width = shape.type === "img1" ? 100 : 50;
       const height = shape.type === "img1" ? 150 : 50;
-      return mouseX >= shape.x && mouseX <= shape.x + width && mouseY >= shape.y && mouseY <= shape.y + height;
+      return (
+        mouseX >= shape.x &&
+        mouseX <= shape.x + width &&
+        mouseY >= shape.y &&
+        mouseY <= shape.y + height
+      );
     });
 
     if (shape) {
@@ -212,11 +227,23 @@ const CanvasComponent = ({ shapes, setShapes }) => {
                 Math.abs(newY + height - otherShape.y) <= 20 ||
                 Math.abs(newY - otherShape.y - height) <= 20;
 
-              if (horizontalSnap && Math.abs(newY - otherShape.y) < height / 2) {
-                snapX = newX < otherShape.x ? otherShape.x - width : otherShape.x + width;
+              if (
+                horizontalSnap &&
+                Math.abs(newY - otherShape.y) < height / 2
+              ) {
+                snapX =
+                  newX < otherShape.x
+                    ? otherShape.x - width
+                    : otherShape.x + width;
                 snapY = otherShape.y; // Align vertically
-              } else if (verticalSnap && Math.abs(newX - otherShape.x) < width / 2) {
-                snapY = newY < otherShape.y ? otherShape.y - height : otherShape.y + height;
+              } else if (
+                verticalSnap &&
+                Math.abs(newX - otherShape.x) < width / 2
+              ) {
+                snapY =
+                  newY < otherShape.y
+                    ? otherShape.y - height
+                    : otherShape.y + height;
                 snapX = otherShape.x; // Align horizontally
               }
             }
