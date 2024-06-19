@@ -1,6 +1,9 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useContext } from "react";
+import { DataContext } from "../context/DataContext";
 
 const CanvasComponent = ({ shapes, setShapes }) => {
+  const { zoomLevel } = useContext(DataContext);
+  console.log(zoomLevel);
   const canvasRef = useRef(null);
   const [draggingShape, setDraggingShape] = useState(null);
   const [images, setImages] = useState({});
@@ -9,7 +12,7 @@ const CanvasComponent = ({ shapes, setShapes }) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     drawShapes(ctx);
-  }, [shapes, images]);
+  }, [shapes, images, zoomLevel]); // Add zoomLevel to dependencies
 
   useEffect(() => {
     const loadImage = (src, width, height) => {
@@ -25,20 +28,21 @@ const CanvasComponent = ({ shapes, setShapes }) => {
       loadImage("/assets/EasyPier_Connect.svg"),
       loadImage("/assets/EasyPier_New.svg", 100, 150),
       loadImage("/assets/SmartPier_New.svg", 50, 50),
-      loadImage("/assets/BG.svg"),
     ])
-      .then(([connector, img1, img2, bg]) => {
+      .then(([connector, img1, img2]) => {
         setImages({
           connector,
           img1,
           img2,
-          bg,
         });
       })
       .catch((error) => console.error("Error loading images:", error));
   }, []);
 
   const drawShapes = (ctx) => {
+    ctx.save(); // Save the current state before applying transformations
+    ctx.setTransform(zoomLevel, 0, 0, zoomLevel, 0, 0); // Apply the zoom level
+
     if (images.bg) {
       ctx.drawImage(
         images.bg,
@@ -61,6 +65,8 @@ const CanvasComponent = ({ shapes, setShapes }) => {
       }
       drawMeasurements(ctx, shape);
     });
+
+    ctx.restore(); // Restore the state to the original after drawing
   };
 
   const drawImage = (ctx, image, shape, width, height) => {
@@ -172,8 +178,8 @@ const CanvasComponent = ({ shapes, setShapes }) => {
   const handleMouseDown = (e) => {
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+    const mouseX = (e.clientX - rect.left) / zoomLevel; // Adjust for zoom level
+    const mouseY = (e.clientY - rect.top) / zoomLevel; // Adjust for zoom level
 
     const shape = shapes.find((shape) => {
       const width = shape.type === "img1" ? 100 : 50;
@@ -200,8 +206,8 @@ const CanvasComponent = ({ shapes, setShapes }) => {
 
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+    const mouseX = (e.clientX - rect.left) / zoomLevel; // Adjust for zoom level
+    const mouseY = (e.clientY - rect.top) / zoomLevel; // Adjust for zoom level
 
     setShapes((prevShapes) => {
       return prevShapes.map((shape) => {
@@ -265,15 +271,17 @@ const CanvasComponent = ({ shapes, setShapes }) => {
   };
 
   return (
-    <canvas
-      ref={canvasRef}
-      width={940}
-      height={600}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      style={canvasStyle}
-    />
+    <div>
+      <canvas
+        ref={canvasRef}
+        width={1000}
+        height={610}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        style={canvasStyle}
+      />
+    </div>
   );
 };
 
