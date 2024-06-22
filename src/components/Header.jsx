@@ -1,8 +1,6 @@
-import React, { useContext, useState } from "react";
-import { TbArrowBackUp, TbArrowForwardUp } from "react-icons/tb";
-import { PiCube } from "react-icons/pi";
+import React, { useContext } from "react";
+import { TbArrowBackUp } from "react-icons/tb";
 import { CiZoomIn, CiZoomOut } from "react-icons/ci";
-import { BsArrowsFullscreen } from "react-icons/bs";
 import { DataContext } from "../context/DataContext";
 
 const Header = ({ setShapes, undo, redo }) => {
@@ -13,7 +11,7 @@ const Header = ({ setShapes, undo, redo }) => {
   };
 
   const handleZoomOut = () => {
-    setZoomLevel((prevZoomLevel) => Math.max(prevZoomLevel / 1.2, 1));
+    setZoomLevel((prevZoomLevel) => Math.max(prevZoomLevel / 1.2, 0.1));
   };
   return (
     <header className="text-gray-600 body-font border-b-2 w-full z-[1000]">
@@ -24,10 +22,7 @@ const Header = ({ setShapes, undo, redo }) => {
               <TbArrowBackUp className="text-2xl" onClick={undo} />
               <span className="flex flex-col items-center px-2">Undo</span>
             </div>
-            <div className="flex flex-col items-center px-2">
-              <TbArrowForwardUp className="text-2xl" onClick={redo} />
-              <span>Redo</span>
-            </div>
+         
           </div>
           <button
             onClick={() => setShapes([])}
@@ -47,12 +42,7 @@ const Header = ({ setShapes, undo, redo }) => {
                 Zoom In
               </span>
             </div>
-            <div className="flex flex-col items-center px-2">
-              <BsArrowsFullscreen className="text-2xl " />
-              <span className="flex flex-col items-center px-2 text-sm  max-w-max">
-                Center
-              </span>
-            </div>
+          
             <div
               onClick={handleZoomOut}
               className="flex flex-col items-center px-2"
@@ -62,12 +52,7 @@ const Header = ({ setShapes, undo, redo }) => {
                 Zoom Out
               </span>
             </div>
-            <div className="flex flex-col items-center px-2">
-              <PiCube className="text-2xl " />
-              <span className="flex flex-col items-center px-2 text-sm  max-w-max">
-                3D
-              </span>
-            </div>
+          
           </div>
           <button className="rounded border border-slate-400 hover:bg-gray-200 px-2 text-black mx-4  max-w-max">
             Parts Breakdown

@@ -8,19 +8,19 @@ import Sidebar from "./components/Sidebar";
 const App = () => {
   const [shapes, setShapes] = useState([]);
 
-  const addShape = (type) => {
-    setShapes((prevShapes) => [
-      ...prevShapes,
-      {
-        id: prevShapes.length + 1,
-        type,
-        x: Math.random() * 500,
-        y: Math.random() * 400,
-        width: 200,
-        height: 200,
-      },
-    ]);
-  };
+const addShape = (type) => {
+  setShapes((prevShapes) => [
+    ...prevShapes,
+    {
+      id: prevShapes.length + 1,
+      type,
+      x: 1000 / 2 - 100,
+      y: 600 / 2 - 100, 
+      width: 200,
+      height: 200,
+    },
+  ]);
+};
 
   return (
     <>
